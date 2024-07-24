@@ -24,6 +24,7 @@ import io.gravitee.am.gateway.handler.common.client.ClientManager;
 import io.gravitee.am.gateway.handler.common.email.EmailManager;
 import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.flow.FlowManager;
+import io.gravitee.am.gateway.handler.common.group.GroupManager;
 import io.gravitee.am.gateway.handler.common.password.PasswordPolicyManager;
 import io.gravitee.am.gateway.handler.common.role.RoleManager;
 import io.gravitee.am.gateway.handler.manager.authdevice.notifier.AuthenticationDeviceNotifierManager;
@@ -41,12 +42,12 @@ import io.gravitee.common.component.LifecycleComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -64,8 +65,13 @@ public class SecurityDomainRouterFactory {
     @Autowired
     private ApplicationContext gatewayApplicationContext;
 
-    @Autowired
-    private Environment environment;
+    @Value("${sync.groups.enabled:false}")
+    private Boolean groupsSyncEnabled;
+
+
+    @Value("${sync.roles.enabled:false}")
+    private Boolean rolesSyncEnabled;
+
 
     public VertxSecurityDomainHandler create(Domain domain) {
         if (domain.isEnabled()) {
@@ -125,9 +131,14 @@ public class SecurityDomainRouterFactory {
         components.add(I18nDictionaryManager.class);
         components.add(ThemeManager.class);
         components.add(PasswordPolicyManager.class);
+        components.add(GroupManager.class);
 
-        if (environment.getProperty("sync.roles.enabled", Boolean.class, false)) {
+        if (rolesSyncEnabled) {
             components.add(RoleManager.class);
+        }
+
+        if (groupsSyncEnabled) {
+            components.add(GroupManager.class);
         }
 
         components.forEach(componentClass -> {
@@ -138,5 +149,6 @@ public class SecurityDomainRouterFactory {
                 logger.error("An error occurs while starting component {}", componentClass.getSimpleName(), e);
             }
         });
+
     }
 }

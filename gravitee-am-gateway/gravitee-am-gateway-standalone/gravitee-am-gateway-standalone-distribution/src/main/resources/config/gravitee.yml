@@ -477,7 +477,10 @@ liquibase:
 #    algorithm: None
 #    properties:
 #      rounds: 10
+
 # synchronized roles by event manager to reduce db calls from gateway
 sync:
+  groups:
+    enabled: true
   roles:
-    enabled: false
+    enabled: true

@@ -16,11 +16,11 @@
 package io.gravitee.am.gateway.handler.common.role;
 
 import io.gravitee.am.model.Role;
-import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.core.Flowable;
 
 import java.util.List;
-import java.util.Set;
 
-public interface RoleFacade {
-    Single<Set<Role>> findByIdIn(List<String> roles);
+public interface RoleManagerFacade {
+    Flowable<Role> findByIdIn(List<String> roles);
+
 }
